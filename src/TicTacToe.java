@@ -2,24 +2,30 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Random;
+
+import static java.awt.BorderLayout.SOUTH;
 
 public class TicTacToe implements ActionListener {
 
     Random random = new Random();
     JFrame frame = new JFrame();
     JPanel titlePanel = new JPanel();
+    JPanel footerPanel = new JPanel();
     JPanel buttonPanel = new JPanel();
     JLabel textField = new JLabel();
+    JLabel scoreField = new JLabel();
+    JButton restartButton = new JButton();
     JButton[] buttons = new JButton[9];
     boolean playerOneTurn;
-    boolean restart;
     int scoreX;
     int scoreO;
 
     public TicTacToe() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 500);
+        frame.setSize(500, 600);
         frame.getContentPane().setBackground(new Color(50, 50, 50));
         frame.setLayout(new BorderLayout());
         frame.setVisible(true);
@@ -31,12 +37,39 @@ public class TicTacToe implements ActionListener {
         textField.setText("Tic-Tac-Toe");
         textField.setOpaque(true);
 
+        scoreField.setBackground(new Color(25, 25,25));
+        scoreField.setForeground(new Color(25,255,0));
+        scoreField.setFont(new Font("Ink Free", Font.BOLD, 75));
+        scoreField.setHorizontalAlignment(JLabel.CENTER);
+        scoreField.setText("X: " + scoreX + "  -  O: " + scoreO);
+        scoreField.setOpaque(true);
+
         titlePanel.setLayout(new BorderLayout());
         titlePanel.setBounds(0, 0, 800, 100);
+
+        footerPanel.setLayout(new BorderLayout());
+        footerPanel.setBounds(0, 0, 800, 100);
+
 
         buttonPanel.setLayout(new GridLayout(3,3));
         buttonPanel.setBackground(new Color(150, 150, 150));
 
+        addButtonsOnPanel();
+
+        titlePanel.add(textField);
+        footerPanel .add(scoreField);
+        frame.add(titlePanel, BorderLayout.NORTH);
+        frame.add(buttonPanel);
+        frame.add(footerPanel, SOUTH);
+
+        firstTurn();
+    }
+
+    private void updateScore(){
+        scoreField.setText("X: " + scoreX + "  -  O: " + scoreO);
+    }
+
+    private void addButtonsOnPanel(){
         for(var i = 0; i<9; i++){
             buttons[i] = new JButton();
             buttonPanel.add(buttons[i]);
@@ -44,12 +77,6 @@ public class TicTacToe implements ActionListener {
             buttons[i].setFocusable(false);
             buttons[i].addActionListener(this);
         }
-
-        titlePanel.add(textField);
-        frame.add(titlePanel, BorderLayout.NORTH);
-        frame.add(buttonPanel);
-
-        firstTurn();
     }
 
     @Override
@@ -80,13 +107,6 @@ public class TicTacToe implements ActionListener {
 
 
     public void firstTurn(){
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         if(random.nextInt(2) ==0){
             playerOneTurn = true;
             textField.setText("X Turn");
@@ -112,10 +132,8 @@ public class TicTacToe implements ActionListener {
         textField.setText("X Wins");
 
         scoreX++;
-        restart = true;
-
-//        restartGame();
-        restart = false;
+        updateScore();
+        restartGame();
     }
 
     public void oWins(int a, int b, int c){
@@ -128,9 +146,9 @@ public class TicTacToe implements ActionListener {
         textField.setText("O Wins");
 
         scoreO++;
-        restart = true;
-//        restartGame();
-        restart = false;
+
+        updateScore();
+        restartGame();
     }
 
     public boolean checkPlayerX(){
@@ -250,17 +268,29 @@ public class TicTacToe implements ActionListener {
             for (var i = 0; i<9; i++)
                 buttons[i].setEnabled(false);
             textField.setText("X TIE O");
+            restartGame();
             return true;
         }
         return false;
     }
 
     public void restartGame(){
-        for(var i = 0; i<9; i++){
-            buttons[i].setText("");
-            buttons[i].setBackground(Color.WHITE);
-            buttons[i].setEnabled(true);
-        }
-        firstTurn();
+        restartButton.setText("New Game");
+        restartButton.setVisible(true);
+        restartButton.setFocusable(true);
+        restartButton.setFont(new Font("MV Boli", Font.BOLD, 20));
+        restartButton.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                restartButton.setVisible(false);
+                buttonPanel.removeAll();
+                addButtonsOnPanel();
+                firstTurn();
+            }
+        });
+
+        titlePanel.add(restartButton, SOUTH);
+
     }
+
 }
